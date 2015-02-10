@@ -5,7 +5,7 @@ package { 'make':
 }
 
 exec { 'build':
-  command => 'cd /vagrant/alternc; make build install-alternc',
+  command => 'sh -c "cd /vagrant/alternc; make build install-alternc"',
   creates => '/etc/alternc',
   require => Package['make'],
 }
