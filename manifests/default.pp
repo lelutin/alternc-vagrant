@@ -1,3 +1,5 @@
+Exec { path => '/bin:/sbin:/usr/bin:/usr/sbin' }
+
 package { 'make':
   ensure => installed,
 }
