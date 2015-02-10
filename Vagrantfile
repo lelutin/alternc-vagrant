@@ -20,4 +20,8 @@ Vagrant.configure(2) do |config|
     libvirt.connect_via_ssh = false
   end
 
+  config.vm.provision :puppet do |puppet|
+    puppet.manifests_path = "manifests"
+    puppet.manifest_file  = "default.pp"
+  end
 end
