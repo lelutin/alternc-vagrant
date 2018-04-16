@@ -1,77 +1,101 @@
 Exec { path => '/bin:/sbin:/usr/bin:/usr/sbin' }
 
-# build depends
-package { 'make':
-  ensure => installed,
-  before => Exec['build'],
-}
-
-# pre-requisites
-# see: apt-cache show alternc | grep "^Depends:\|^Pre-Depends:\|^Recommends:"
+# pre-requisites. dpkg method doesn't automatically bring in dependencies
+# Those were taken from ./alternc/debian/control in sections "pre-depends" and
+# "depends", minus packages that are usually installed in debian netinst.
 package { [
-    # Depends
-    'apache2-mpm-itk',
-    'libapache2-mod-php5',
-    'php5-mysql',
-    'phpmyadmin',
-    'postfix',
-    'proftpd-mod-mysql',
-    'proftpd-basic',
-    'bind9',
-    'wget',
-    'rsync',
-    'ca-certificates',
-    'locales',
-    'perl',
-    'postfix-mysql',
-    'wwwconfig-common',
-    'sasl2-bin',
-    'libsasl2-modules',
-    'php5-cli',
-    'lockfile-progs',
-    'gettext',
-    'sudo',
-    'adduser',
-    'mysql-client',
-    'dnsutils',
-    'dovecot-common',
-    'dovecot-imapd',
-    'dovecot-pop3d',
-    'dovecot-mysql',
-    'vlogger',
-    'bsd-mailx',
-    'incron',
-    'cron',
-    'opendkim',
-    'opendkim-tools',
-    'dovecot-sieve',
-    'dovecot-managesieved',
-    'php5-curl',
-    # Pre-Depends
-    'debconf',
-    'bash',
-    'acl',
-    # Recommends
-    'mysql-server',
-    'ntp',
-    'quota',
-    'unzip',
-    'bzip2',
-  ]:
+  'acl',
+  'debianutils',
+  'libapache2-mpm-itk',
+  'libapache2-mod-php7.0',
+  'php7.0-mysql',
+  'phpmyadmin',
+  'postfix',
+  'proftpd-mod-mysql',
+  'proftpd-basic',
+  'bind9',
+  'wget',
+  'rsync',
+  'ca-certificates',
+  'locales',
+  'perl',
+  'postfix-mysql',
+  'wwwconfig-common',
+  'sasl2-bin',
+  'libsasl2-modules',
+  'php7.0-cli',
+  'lockfile-progs',
+  'gettext',
+  'sudo',
+  'adduser',
+  'dnsutils',
+  'dovecot-core',
+  'dovecot-imapd',
+  'dovecot-pop3d',
+  'dovecot-mysql',
+  'vlogger',
+  'bsd-mailx',
+  'zip',
+  'incron',
+  'cron',
+  'opendkim',
+  'opendkim-tools',
+  'dovecot-sieve',
+  'dovecot-managesieved',
+  'mariadb-client',
+  'php7.0-curl',
+  'quota',
+  'pwgen',
+]:
   ensure => installed,
-  before => Exec['install'],
+  before => Exec['preseeding'],
 }
 
-exec { 'build':
-  command => 'sh -c "cd /vagrant/alternc; make build install-alternc"',
-  creates => '/etc/alternc',
+# This is soooooooo ugly.. but we did want to plug into debian package scripts
+# :\ that's because there's no other way grr.
+#
+# If something errors out in the process, to clear make the preseeding happen
+# again, you need to clear out debconf values for the alternc package:
+#
+# echo purge | debconf-communicate alternc
+$preseed_items = @("END")
+  alternc alternc/alternc_mail string mail.example.com
+  alternc alternc/mysql/host string localhost
+  alternc alternc/mysql/user string sysusr
+  alternc alternc/mysql/password password blahblah1
+  alternc alternc/mysql/alternc_mail_user string alternc_user
+  alternc alternc/mysql/alternc_mail_password password blablah2
+  alternc alternc/public_ip string ${::ipaddress}
+  alternc alternc/use_private_ip boolean true
+  alternc alternc/mysql/remote_user string sysusr
+  alternc alternc/mysql/remote_password password blahblah3
+  alternc alternc/mysql/client string %
+  alternc alternc/retry_remote_mysql boolean false
+  alternc alternc/hostingname string debian9
+  alternc alternc/desktopname string bureau.example.com
+  alternc alternc/internal_ip string 127.0.0.1
+  alternc alternc/ns1 string ns1.example.com
+  alternc alternc/ns2 string ns2.example.com
+  alternc alternc/default_mx string mx.example.com
+  alternc alternc/use_local_mysql boolean true
+  alternc alternc/use_remote_mysql boolean false
+  alternc alternc/alternc_html string /var/alternc/html
+  alternc alternc/alternc_mail string /var/alternc/mail
+  alternc alternc/alternc_logs string /var/log/alternc/sites
+  alternc alternc/mysql/db string alternc
+  alternc alternc/sql/backuptype string rotate
+  alternc alternc/sql/backupoverwrite string no
+  | END
+exec { 'preseeding':
+  command => "echo -e \"${preseed_items}\" | debconf-set-selections",
+  unless  => 'test `echo get alternc/alternc_mail | debconf-communicate alternc 2>/dev/null | grep mail.example.com | wc -l` = 1',
 }
 
-# FIXME: alternc.install needs /etc/alternc/local.sh but this is only generated
-# by the debian package's postinstall script.
-exec { 'install':
-  command => '/usr/share/alternc/install/alternc.install',
-  creates => '/etc/alternc/bureau.conf',
-  require => Exec['build'],
+# XXX: getting an error during post-installation about not being able to create /var/alternc/mail :: /var/alternc does not exist!
+package { 'alternc':
+  ensure   => installed,
+  provider => 'dpkg',
+  source   => '/vagrant/alternc_3.3.10_all.deb',
+  require  => Exec['preseeding'],
 }
 
