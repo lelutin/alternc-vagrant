@@ -1,2 +1,8 @@
 /alternc
 .vagrant
+/alternc*.deb
+/alternc*.dsc
+/alternc*.tar.gz
+/alternc*.build
+/alternc*.buildinfo
+/alternc*.changes
