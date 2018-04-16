@@ -12,8 +12,7 @@ Vagrant.configure(2) do |config|
 
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
-  config.vm.box = "debian-wheezy"
-  config.vm.network :private_network, :ip => '192.168.122.205'
+  config.vm.box = "debian-9.4-amd64"
 
   # Set libvirt to local only
   config.vm.provider :libvirt do |libvirt|
