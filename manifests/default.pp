@@ -58,32 +58,32 @@ package { [
 #
 # Of course, you can also vagrant destroy and bring up again.
 $preseed_items = @("END")
-  alternc alternc/alternc_mail string mail.example.com
+  alternc alternc/hostingname string debian9
+  alternc alternc/desktopname string bureau.example.com
+  alternc alternc/internal_ip string 127.0.0.1
+  alternc alternc/public_ip string ${::ipaddress}
+  alternc alternc/use_private_ip boolean true
+  alternc alternc/alternc_html string /var/www/alternc
+  alternc alternc/alternc_mail string /var/mail/alternc
+  alternc alternc/alternc_logs string /var/log/alternc/sites
+  alternc alternc/ns1 string ns1.example.com
+  alternc alternc/ns2 string ns2.example.com
   alternc alternc/mysql/host string localhost
+  alternc alternc/mysql/db string alternc
   alternc alternc/mysql/user string sysusr
   alternc alternc/mysql/password password blahblah1
   alternc alternc/mysql/alternc_mail_user string alternc_user
   alternc alternc/mysql/alternc_mail_password password blablah2
-  alternc alternc/public_ip string ${::ipaddress}
-  alternc alternc/use_private_ip boolean true
   alternc alternc/mysql/remote_user string sysusr
   alternc alternc/mysql/remote_password password blahblah3
   alternc alternc/mysql/client string %
-  alternc alternc/retry_remote_mysql boolean false
-  alternc alternc/hostingname string debian9
-  alternc alternc/desktopname string bureau.example.com
-  alternc alternc/internal_ip string 127.0.0.1
-  alternc alternc/ns1 string ns1.example.com
-  alternc alternc/ns2 string ns2.example.com
-  alternc alternc/default_mx string mx.example.com
-  alternc alternc/use_local_mysql boolean true
-  alternc alternc/use_remote_mysql boolean false
-  alternc alternc/alternc_html string /var/www/alternc
-  alternc alternc/alternc_mail string /var/mail/alternc
-  alternc alternc/alternc_logs string /var/log/alternc/sites
-  alternc alternc/mysql/db string alternc
   alternc alternc/sql/backuptype string rotate
   alternc alternc/sql/backupoverwrite string no
+  alternc alternc/use_local_mysql boolean true
+  alternc alternc/use_remote_mysql boolean false
+  alternc alternc/retry_remote_mysql boolean false
+  alternc alternc/alternc_mail string mail.example.com
+  alternc alternc/default_mx string mx.example.com
   | END
 exec { 'preseeding':
   command => "echo -e \"${preseed_items}\" | debconf-set-selections",
