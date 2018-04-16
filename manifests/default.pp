@@ -51,13 +51,12 @@ package { [
   before => Exec['preseeding'],
 }
 
-# This is soooooooo ugly.. but we did want to plug into debian package scripts
-# :\ that's because there's no other way grr.
-#
-# If something errors out in the process, to clear make the preseeding happen
+# If something errors out in the process, to make the preseeding happen
 # again, you need to clear out debconf values for the alternc package:
 #
 # echo purge | debconf-communicate alternc
+#
+# Of course, you can also vagrant destroy and bring up again.
 $preseed_items = @("END")
   alternc alternc/alternc_mail string mail.example.com
   alternc alternc/mysql/host string localhost
@@ -79,8 +78,8 @@ $preseed_items = @("END")
   alternc alternc/default_mx string mx.example.com
   alternc alternc/use_local_mysql boolean true
   alternc alternc/use_remote_mysql boolean false
-  alternc alternc/alternc_html string /var/alternc/html
-  alternc alternc/alternc_mail string /var/alternc/mail
+  alternc alternc/alternc_html string /var/www/alternc
+  alternc alternc/alternc_mail string /var/mail/alternc
   alternc alternc/alternc_logs string /var/log/alternc/sites
   alternc alternc/mysql/db string alternc
   alternc alternc/sql/backuptype string rotate
@@ -91,7 +90,6 @@ exec { 'preseeding':
   unless  => 'test `echo get alternc/alternc_mail | debconf-communicate alternc 2>/dev/null | grep mail.example.com | wc -l` = 1',
 }
 
-# XXX: getting an error during post-installation about not being able to create /var/alternc/mail :: /var/alternc does not exist!
 package { 'alternc':
   ensure   => installed,
   provider => 'dpkg',
