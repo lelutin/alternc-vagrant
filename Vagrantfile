@@ -6,7 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure(2) do |config|
-  config.vm.box = "debian-9.4-amd64"
+  config.vm.box = "debian-9-amd64"
 
   config.ssh.insert_key = false
 
