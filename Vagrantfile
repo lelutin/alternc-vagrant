@@ -6,7 +6,7 @@
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure(2) do |config|
-  config.vm.box = "debian-9-amd64"
+  config.vm.box = "koumbit/stretch64"
 
   config.ssh.insert_key = false
 
@@ -37,5 +37,14 @@ Vagrant.configure(2) do |config|
       # by using NFSv4 everywhere. Please note that the tcp option is not the default.
       mount_options: ['rw', 'vers=3', 'tcp', 'nolock']
     }
+  end
+
+  if Vagrant.has_plugin?("vagrant-hostmanager")
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = true
+    config.hostmanager.ignore_private_ip = false
+    config.hostmanager.include_offline = true
+    config.hostmanager.aliases = %w(alternc.local test.alternc.local)
   end
 end
