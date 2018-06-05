@@ -38,4 +38,13 @@ Vagrant.configure(2) do |config|
       mount_options: ['rw', 'vers=3', 'tcp', 'nolock']
     }
   end
+
+  if Vagrant.has_plugin?("vagrant-hostmanager")
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = true
+    config.hostmanager.ignore_private_ip = false
+    config.hostmanager.include_offline = true
+    config.hostmanager.aliases = %w(alternc.local test.alternc.local)
+  end
 end

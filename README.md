@@ -46,6 +46,16 @@ We can now spin up the VM and test the instance in there.
 
     vagrant up
 
-TODO: figure out a good way to find the VM's IP and point some hostname to this
-IP.
+### Using vagrant-hostmanager
 
+[vagrant-hostmanager][1] is a vagrant plugin which will update active guest and,
+optionally, the host's /etc/hosts file. If it's installed, host entries should
+the default hostname of the guest, alternc.local, and test.alternc.local will be
+configured automatically and removed when the the guest is destroyed. Wildcards
+are not allowed in host files, so if further names are required they must be
+added in the Vagrantfile.
+
+Note: You will be prompted for sudo access when starting to destroying unless
+the sudoers configuration listed in the vagrant-hostmanager readme is done.
+
+[1]: https://github.com/devopsgroup-io/vagrant-hostmanager/releases
